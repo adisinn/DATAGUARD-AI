@@ -1,0 +1,51 @@
+customer_id,email,region,total_spent_inr,num_orders,avg_order_value,first_order_date,last_order_date,favorite_product,return_rate,is_vip
+CUST00001,user1023@gmail.com,North,124350.00,8,15543.75,2023-02-14,2025-02-18,Widget A,0.00,False
+CUST00002,user2145@yahoo.com,East,4520.00,2,2260.00,2024-01-08,2024-07-21,Widget B,0.00,False
+CUST00003,,West,230000.00,20,11500.00,2023-06-10,2025-03-01,Gadget Pro,0.05,True
+CUST00004,user9988@company.in,Central,34000.00,5,6800.00,2023-11-02,2024-09-12,Service Pack,0.20,False
+CUST00005,user5566@outlook.com,South,7800.00,1,7800.00,2024-12-25,2024-12-25,Widget A,0.00,False
+CUST00006,user7711@gmail.com,North,56000.00,7,8000.00,2023-04-07,2025-01-30,Premium Bundle,0.14,True
+CUST00007,user3322@company.in,East,1540.00,3,513.33,2024-05-21,2024-10-04,Widget B,0.00,False
+CUST00008,user8899@yahoo.com,West,90200.00,12,7516.67,2023-09-13,2025-02-02,Gadget Pro,0.08,True
+CUST00009,user4400@gmail.com,Central,1200.00,1,1200.00,2024-03-03,2024-03-03,Widget A,0.00,False
+CUST00010,,South,0.00,0,,2023-01-01,2023-01-01,,0.00,False
+CUST00011,user1212@outlook.com,East,23450.00,4,5862.50,2023-07-19,2024-11-11,Widget A,0.25,False
+CUST00012,user5656@gmail.com,North,99500.00,15,6633.33,2023-03-02,2025-02-25,Service Pack,0.03,True
+CUST00013,user7878@yahoo.com,West,450.00,1,450.00,2024-08-15,2024-08-15,Widget B,0.00,False
+CUST00014,user3344@company.in,East,16000.00,6,2666.67,2023-12-01,2024-10-29,Gadget Pro,0.00,False
+CUST00015,user9090@gmail.com,Central,214000.00,28,7642.86,2023-05-06,2025-03-05,Premium Bundle,0.02,True
+CUST00016,user1414@outlook.com,North,8700.00,2,4350.00,2024-06-21,2024-12-19,Widget A,0.00,False
+CUST00017,user3737@yahoo.com,South,33000.00,3,11000.00,2023-10-01,2024-12-01,Service Pack,0.33,False
+CUST00018,user4848@gmail.com,East,12850.00,5,2570.00,2023-08-08,2025-01-11,Widget B,0.00,False
+CUST00019,user6161@company.in,West,40500.00,6,6750.00,2023-02-22,2024-11-02,Gadget Pro,0.17,False
+CUST00020,user7373@outlook.com,Central,59000.00,9,6555.56,2023-04-18,2025-01-20,Widget A,0.05,True
+CUST00021,user8282@gmail.com,East,0.00,0,,2024-02-01,2024-02-01,,0.00,False
+CUST00022,user9494@yahoo.com,North,17450.00,3,5816.67,2023-09-09,2024-08-08,Widget B,0.00,False
+CUST00023,user2020@company.in,South,2200.00,2,1100.00,2024-07-07,2024-11-11,Widget A,0.00,False
+CUST00024,user3030@gmail.com,West,135000.00,18,7500.00,2023-01-20,2025-03-02,Premium Bundle,0.06,True
+CUST00025,,Central,4800.00,1,4800.00,2024-11-11,2024-11-11,Service Pack,0.00,False
+CUST00026,user4545@outlook.com,East,9900.00,4,2475.00,2023-06-30,2024-12-24,Widget B,0.00,False
+CUST00027,user6767@yahoo.com,North,33400.00,11,3036.36,2023-03-15,2024-10-10,Gadget Pro,0.09,False
+CUST00028,user8888@gmail.com,South,760.00,1,760.00,2024-02-14,2024-02-14,Widget A,0.00,False
+CUST00029,user9999@company.in,Central,21000.00,5,4200.00,2023-11-23,2024-09-30,Widget B,0.00,False
+CUST00030,user1111@outlook.com,West,50200.00,7,7171.43,2023-05-05,2025-02-14,Gadget Pro,0.04,True
+CUST00031,user1213@gmail.com,East,15800.00,4,3950.00,2023-07-01,2024-10-20,Service Pack,0.00,False
+CUST00032,user1415@yahoo.com,North,6600.00,2,3300.00,2024-03-03,2024-08-08,Widget B,0.00,False
+CUST00033,user1617@company.in,Central,0.00,0,,2023-01-01,2023-01-01,,0.00,False
+CUST00034,user1819@gmail.com,West,87400.00,13,6723.08,2023-09-15,2025-02-28,Premium Bundle,0.01,True
+CUST00035,user2021@outlook.com,South,11700.00,3,3900.00,2023-12-31,2024-11-12,Widget A,0.00,False
+CUST00036,user2222@yahoo.com,East,4300.00,2,2150.00,2024-01-18,2024-08-29,Widget B,0.00,False
+CUST00037,user2323@gmail.com,North,2600.00,1,2600.00,2024-06-06,2024-06-06,Service Pack,0.00,False
+CUST00038,user2424@company.in,Central,39900.00,6,6650.00,2023-02-02,2025-01-15,Gadget Pro,0.12,False
+CUST00039,user2525@outlook.com,West,899.00,1,899.00,2024-09-09,2024-09-09,Widget A,0.00,False
+CUST00040,user2626@gmail.com,East,55000.00,10,5500.00,2023-03-03,2025-02-20,Premium Bundle,0.00,True
+CUST00041,user2727@yahoo.com,North,4750.00,2,2375.00,2024-07-12,2024-12-12,Widget B,0.00,False
+CUST00042,user2828@company.in,Central,12800.00,3,4266.67,2023-08-08,2024-11-22,Service Pack,0.00,False
+CUST00043,user2929@gmail.com,South,190000.00,25,7600.00,2023-04-04,2025-03-06,Premium Bundle,0.02,True
+CUST00044,user3031@outlook.com,West,6100.00,2,3050.00,2024-05-05,2024-11-11,Widget A,0.00,False
+CUST00045,user3131@yahoo.com,East,14300.00,4,3575.00,2023-10-10,2024-10-10,Gadget Pro,0.00,False
+CUST00046,user3232@gmail.com,North,0.00,0,,2023-01-01,2023-01-01,,0.00,False
+CUST00047,user3333@company.in,Central,76000.00,9,8444.44,2023-06-06,2025-02-05,Premium Bundle,0.05,True
+CUST00048,user3434@outlook.com,South,29200.00,6,4866.67,2023-11-01,2024-12-20,Service Pack,0.00,False
+CUST00049,user3535@yahoo.com,West,4200.00,1,4200.00,2024-04-04,2024-04-04,Widget B,0.00,False
+CUST00050,user3636@gmail.com,East,68500.00,11,6227.27,2023-07-07,2025-01-10,Gadget Pro,0.03,True

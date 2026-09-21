@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DataGuard AI — Data Reliability Platform</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07090f;--surface:#0d1117;--card:#111827;--border:#1f2937;--border2:#374151;
+  --text:#f1f5f9;--muted:#64748b;--dim:#94a3b8;
+  --blue:#3b82f6;--blue-dim:rgba(59,130,246,0.12);--blue-border:rgba(59,130,246,0.25);
+  --cyan:#22d3ee;--green:#34d399;--yellow:#fbbf24;--orange:#fb923c;--red:#f87171;
+  --purple:#a78bfa;--pink:#e879f9;
+  --radius:12px;--radius-sm:8px;--radius-lg:16px;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;line-height:1.6;min-height:100vh;overflow-x:hidden}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* ── Layout ── */
+#app{display:flex;min-height:100vh}
+#sidebar{width:260px;min-width:260px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:0;z-index:100;transition:transform .3s}
+#main{flex:1;overflow-y:auto;overflow-x:hidden}
+
+/* ── Sidebar ── */
+.sidebar-logo{padding:24px 20px 18px;border-bottom:1px solid var(--border)}
+.sidebar-logo-row{display:flex;align-items:center;gap:10px}
+.logo-icon{font-size:22px}
+.logo-text{font-size:15px;font-weight:800;letter-spacing:-.02em;color:var(--text)}
+.logo-sub{font-size:11px;color:var(--muted);margin-top:2px}
+
+.sidebar-section{padding:16px 14px 8px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+
+.upload-area{margin:0 14px 14px;border:1.5px dashed var(--border2);border-radius:var(--radius);padding:18px 14px;text-align:center;cursor:pointer;transition:all .2s;background:transparent;position:relative}
+.upload-area:hover,.upload-area.drag{border-color:var(--blue);background:var(--blue-dim)}
+.upload-area input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-icon{font-size:22px;margin-bottom:6px}
+.upload-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px}
+.upload-sub{font-size:10px;color:var(--muted)}
+
+.sample-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:0 14px 14px}
+.sample-btn{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 8px;cursor:pointer;text-align:left;transition:all .2s;color:var(--text)}
+.sample-btn:hover{border-color:var(--blue);background:var(--blue-dim)}
+.sample-btn-icon{font-size:16px;margin-bottom:4px}
+.sample-btn-label{font-size:11px;font-weight:600;display:block;color:var(--text)}
+.sample-btn-desc{font-size:9.5px;color:var(--muted);line-height:1.3;margin-top:2px}
+
+.sidebar-ai-status{margin:0 14px 14px;padding:10px 12px;border-radius:var(--radius-sm);font-size:11px}
+.status-online{background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2)}
+.status-offline{background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.2)}
+.status-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px;position:relative;top:-1px}
+.dot-green{background:var(--green);box-shadow:0 0 6px var(--green)}
+.dot-yellow{background:var(--yellow)}
+.status-label{font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-size:10px}
+.status-model{color:var(--muted);font-size:10px;margin-top:3px}
+
+/* ── Landing ── */
+#landing{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:60px 40px;text-align:center}
+.landing-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:100px;padding:5px 16px;font-size:11px;font-weight:600;color:var(--blue);letter-spacing:.05em;margin-bottom:28px}
+.landing-h1{font-size:clamp(2rem,4vw,3.4rem);font-weight:900;letter-spacing:-.04em;line-height:1.1;margin-bottom:16px;max-width:700px}
+.grad-text{background:linear-gradient(135deg,var(--blue),var(--purple),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.landing-sub{font-size:15px;color:var(--muted);max-width:520px;line-height:1.7;margin-bottom:48px}
+.landing-features{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;max-width:860px;width:100%;margin-bottom:48px}
+.feature-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px 16px;text-align:left;transition:border-color .2s}
+.feature-card:hover{border-color:var(--border2)}
+.feature-icon{font-size:20px;margin-bottom:10px}
+.feature-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:5px}
+.feature-desc{font-size:11px;color:var(--muted);line-height:1.55}
+.landing-cta{color:var(--muted);font-size:12px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+
+/* ── Dashboard ── */
+#dashboard{display:none;flex-direction:column;min-height:100vh}
+.dash-header{padding:20px 32px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;background:var(--surface);position:sticky;top:0;z-index:50}
+.dash-title-row{display:flex;align-items:center;gap:10px}
+.dash-title{font-size:16px;font-weight:800;letter-spacing:-.02em}
+.dash-badge{background:var(--blue-dim);color:var(--blue);border:1px solid var(--blue-border);padding:2px 10px;border-radius:100px;font-size:10px;font-weight:700;letter-spacing:.05em}
+.dash-file{font-size:11px;color:var(--muted);margin-top:2px}
+.dash-score-pill{display:flex;align-items:center;gap:10px}
+.score-big{font-size:28px;font-weight:900;letter-spacing:-.04em;line-height:1}
+.score-grade{padding:5px 12px;border-radius:var(--radius-sm);font-size:16px;font-weight:900;text-align:center}
+.score-verdict{font-size:11px;color:var(--muted);max-width:200px;line-height:1.4}
+
+.stat-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;padding:16px 32px;background:var(--bg)}
+.stat-tile{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;text-align:center}
+.stat-label{font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.stat-value{font-size:22px;font-weight:800;letter-spacing:-.03em;line-height:1}
+.mini-bar{height:4px;background:var(--border);border-radius:2px;margin-top:6px;overflow:hidden}
+.mini-bar-fill{height:100%;border-radius:2px;transition:width .6s ease}
+
+/* ── Tabs ── */
+.tabs-nav{display:flex;align-items:center;border-bottom:1px solid var(--border);padding:0 32px;background:var(--surface);overflow-x:auto;gap:0}
+.tab-btn{background:none;border:none;border-bottom:2px solid transparent;padding:12px 16px;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;white-space:nowrap;letter-spacing:.01em;transition:all .2s}
+.tab-btn:hover{color:var(--dim)}
+.tab-btn.active{color:var(--blue);border-bottom-color:var(--blue)}
+.tab-content{display:none;padding:28px 32px}
+.tab-content.active{display:block}
+
+/* ── Cards / Sections ── */
+.section-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px;letter-spacing:-.01em}
+.section-sub{font-size:11px;color:var(--muted);margin-bottom:18px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.card+.card{margin-top:10px}
+.card-sm{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px}
+
+/* ── Score Tab ── */
+.score-layout{display:grid;grid-template-columns:220px 1fr;gap:20px;align-items:start}
+.gauge-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;text-align:center}
+.gauge-label{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+svg.gauge{display:block;margin:0 auto 12px}
+.gauge-verdict{font-size:12px;font-weight:600;margin-top:10px}
+.gauge-stats{margin-top:16px;border-top:1px solid var(--border);padding-top:12px}
+.kv{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(31,41,55,.5)}
+.kv:last-child{border:none}
+.kv-key{font-size:11px;color:var(--muted)}
+.kv-val{font-size:11px;font-weight:500;color:var(--text)}
+
+.dims-grid{display:flex;flex-direction:column;gap:8px}
+.dim-row{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px}
+.dim-row-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+.dim-name{font-size:13px;font-weight:600;color:var(--text)}
+.dim-weight{font-size:10px;color:var(--muted);margin-left:6px}
+.dim-note{font-size:11px;color:var(--muted)}
+.dim-score{font-size:18px;font-weight:800;min-width:36px;text-align:right}
+.progress-bar{height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+
+/* ── Column Tab ── */
+.col-table{width:100%;border-collapse:collapse;font-size:12px}
+.col-table th{padding:9px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);background:rgba(7,9,15,.6);border-bottom:1px solid var(--border);white-space:nowrap}
+.col-table td{padding:9px 12px;border-bottom:1px solid rgba(31,41,55,.4);vertical-align:middle}
+.col-table tr:last-child td{border:none}
+.col-table tr:hover td{background:rgba(255,255,255,.02)}
+.status-icon{font-weight:800;font-size:13px}
+.type-badge{background:var(--border);color:var(--muted);padding:1px 6px;border-radius:4px;font-size:10px;font-family:monospace}
+.inline-bar{background:var(--border);border-radius:3px;height:4px;width:80px;overflow:hidden;display:inline-block;vertical-align:middle;margin-left:4px}
+.inline-bar-fill{height:100%;border-radius:3px}
+.num-dist-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-top:18px}
+.num-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px}
+.num-name{font-size:12px;font-weight:600;color:var(--text);margin-bottom:10px}
+.num-stats{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.num-stat{text-align:center}
+.num-stat-val{font-size:12px;font-weight:600;color:var(--dim)}
+.num-stat-key{font-size:9px;color:var(--muted)}
+.range-bar-wrap{background:var(--border);border-radius:4px;height:16px;position:relative;overflow:hidden}
+.range-q{position:absolute;height:100%;background:rgba(59,130,246,.2)}
+.range-med{position:absolute;width:2px;height:100%;background:var(--blue)}
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:18px}
+.cat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px}
+.cat-name{font-size:12px;font-weight:600;color:var(--text);margin-bottom:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cat-bar-row{margin-bottom:5px}
+.cat-bar-label{display:flex;justify-content:space-between;font-size:10px;margin-bottom:2px}
+.cat-bar-track{background:var(--border);border-radius:3px;height:4px;overflow:hidden}
+.cat-bar-fill{height:100%;border-radius:3px}
+
+/* ── Issues Tab ── */
+.issue-summary-bar{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;display:flex;gap:24px;align-items:center;margin-bottom:20px;flex-wrap:wrap}
+.sev-count{text-align:center}
+.sev-num{font-size:26px;font-weight:900;line-height:1}
+.sev-label{font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.summary-text{flex:1;font-size:12px;color:var(--dim);line-height:1.6;border-left:1px solid var(--border);padding-left:20px}
+.issue-card{border-radius:var(--radius);padding:16px 18px;margin-bottom:10px;border-left:3px solid transparent;transition:transform .1s}
+.issue-card:hover{transform:translateX(2px)}
+.issue-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.issue-title-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+.issue-title{font-size:13px;font-weight:700;color:var(--text)}
+.sev-pill{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:100px;font-size:10px;font-weight:700;letter-spacing:.04em}
+.issue-desc{font-size:12px;color:var(--muted);line-height:1.55;margin-bottom:8px}
+.issue-causes{list-style:none;padding:0}
+.issue-causes li{font-size:11px;color:var(--dim);padding:2px 0;padding-left:12px;position:relative}
+.issue-causes li::before{content:"▸";position:absolute;left:0;color:var(--muted)}
+.issue-pct{font-size:22px;font-weight:900;line-height:1;min-width:70px;text-align:right}
+.issue-pct-label{font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:right}
+.evidence-box{margin-top:12px;background:rgba(7,9,15,.5);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;font-size:11px;color:var(--muted);line-height:1.6}
+
+/* ── Impact Tab ── */
+.impact-heroes{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.hero-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px}
+.hero-icon{font-size:18px;margin-bottom:6px}
+.hero-label{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.hero-value{font-size:26px;font-weight:900;letter-spacing:-.03em;line-height:1}
+.hero-sub{font-size:11px;color:var(--muted);margin-top:4px}
+.exec-summary{background:rgba(59,130,246,.05);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;font-size:12px;color:var(--dim);line-height:1.7;margin-bottom:20px}
+.impact-card{border-radius:var(--radius);padding:16px 18px;margin-bottom:10px}
+.impact-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.impact-monetary{font-size:12px;font-weight:600;margin-top:8px}
+.impact-risks{margin-top:10px}
+.risk-item{display:flex;gap:6px;font-size:11px;color:var(--muted);padding:2px 0}
+.risk-arrow{color:var(--muted);flex-shrink:0;margin-top:1px}
+
+/* ── Recs Tab ── */
+.recs-heroes{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
+.plan-box{background:rgba(129,140,248,.05);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;font-size:12px;color:var(--dim);line-height:1.7;margin-bottom:20px}
+.rec-filters{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.filter-btn{background:var(--card);border:1px solid var(--border);border-radius:100px;padding:4px 12px;font-size:11px;font-weight:500;color:var(--muted);cursor:pointer;transition:all .2s}
+.filter-btn.active{border-color:var(--blue);color:var(--blue);background:var(--blue-dim)}
+.rec-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:8px;display:flex;gap:12px;align-items:flex-start;transition:border-color .2s}
+.rec-card:hover{border-color:var(--border2)}
+.rec-num{min-width:36px;height:36px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;flex-shrink:0}
+.rec-body{flex:1;min-width:0}
+.rec-action{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px}
+.rec-detail{font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:8px}
+.rec-tags{display:flex;gap:6px;flex-wrap:wrap}
+.tag{padding:2px 8px;border-radius:100px;font-size:10px;font-weight:700;border:1px solid transparent}
+
+/* ── AI Chat Tab ── */
+.chat-layout{display:grid;grid-template-columns:1fr 320px;gap:20px;height:calc(100vh - 200px);min-height:500px}
+.chat-main{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.chat-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.chat-header-icon{font-size:16px}
+.chat-header-title{font-size:13px;font-weight:700}
+.chat-header-sub{font-size:10px;color:var(--muted)}
+.chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.msg{display:flex;gap:8px;align-items:flex-end;max-width:85%}
+.msg-user{align-self:flex-end;flex-direction:row-reverse}
+.msg-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.avatar-ai{background:var(--blue-dim);border:1px solid var(--blue-border);color:var(--blue)}
+.avatar-user{background:rgba(167,139,250,.12);border:1px solid rgba(167,139,250,.25);color:var(--purple)}
+.msg-bubble{padding:10px 14px;border-radius:14px;font-size:12px;line-height:1.6}
+.bubble-ai{background:var(--surface);border:1px solid var(--border);border-bottom-left-radius:4px;color:var(--dim)}
+.bubble-user{background:var(--blue-dim);border:1px solid var(--blue-border);border-bottom-right-radius:4px;color:var(--text)}
+.bubble-typing{display:flex;gap:4px;align-items:center;padding:14px}
+.dot-typing{width:6px;height:6px;background:var(--muted);border-radius:50%;animation:typing .8s infinite}
+.dot-typing:nth-child(2){animation-delay:.15s}
+.dot-typing:nth-child(3){animation-delay:.3s}
+@keyframes typing{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+.chat-input-row{padding:12px;border-top:1px solid var(--border);display:flex;gap:8px}
+.chat-input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px 12px;font-size:12px;color:var(--text);outline:none;transition:border-color .2s;font-family:inherit}
+.chat-input:focus{border-color:var(--blue)}
+.chat-send-btn{background:var(--blue);border:none;border-radius:var(--radius-sm);padding:8px 14px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;transition:background .2s;white-space:nowrap}
+.chat-send-btn:hover{background:#2563eb}
+.chat-send-btn:disabled{background:var(--border2);cursor:not-allowed}
+
+.chat-side{display:flex;flex-direction:column;gap:12px}
+.suggestions-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px}
+.suggestions-title{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.suggestion-pill{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;font-size:11px;color:var(--dim);cursor:pointer;display:block;width:100%;text-align:left;margin-bottom:5px;transition:all .2s;line-height:1.4}
+.suggestion-pill:hover{border-color:var(--blue);color:var(--text);background:var(--blue-dim)}
+.narrative-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;flex:1}
+.narrative-title-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.narrative-title{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.narrative-gen-btn{background:transparent;border:1px solid var(--blue-border);color:var(--blue);border-radius:var(--radius-sm);padding:4px 10px;font-size:10px;font-weight:700;cursor:pointer;transition:all .2s}
+.narrative-gen-btn:hover{background:var(--blue-dim)}
+.narrative-text{font-size:11px;color:var(--dim);line-height:1.7}
+.ai-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:100px;font-size:9px;font-weight:700;letter-spacing:.04em;margin-bottom:8px}
+.ai-badge-gen{background:rgba(52,211,153,.1);color:var(--green);border:1px solid rgba(52,211,153,.2)}
+.ai-badge-fallback{background:var(--blue-dim);color:var(--blue);border:1px solid var(--blue-border)}
+
+/* ── Raw Data Tab ── */
+.raw-table-wrap{overflow:auto;max-height:500px;border:1px solid var(--border);border-radius:var(--radius)}
+.raw-table{width:100%;border-collapse:collapse;font-size:11px}
+.raw-table th{background:rgba(7,9,15,.8);padding:8px 10px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);white-space:nowrap;position:sticky;top:0;z-index:1;border-bottom:1px solid var(--border)}
+.raw-table td{padding:7px 10px;border-bottom:1px solid rgba(31,41,55,.3);color:var(--dim);white-space:nowrap;max-width:180px;overflow:hidden;text-overflow:ellipsis}
+.raw-table tr:hover td{background:rgba(255,255,255,.02)}
+.dl-btn{display:inline-flex;align-items:center;gap:6px;background:var(--blue);color:#fff;border:none;border-radius:var(--radius-sm);padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:14px;transition:background .2s}
+.dl-btn:hover{background:#2563eb}
+
+/* ── Toast / Loading ── */
+.loading-overlay{position:fixed;inset:0;background:rgba(7,9,15,.85);display:flex;align-items:center;justify-content:center;z-index:9999;backdrop-filter:blur(4px);display:none}
+.loading-box{text-align:center}
+.loading-spinner{width:48px;height:48px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:13px;font-weight:600;color:var(--dim)}
+.loading-sub{font-size:11px;color:var(--muted);margin-top:4px}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;font-size:12px;color:var(--text);z-index:9998;transform:translateY(20px);opacity:0;transition:all .3s;max-width:320px}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.error{border-color:rgba(248,113,113,.4);color:var(--red)}
+.toast.success{border-color:rgba(52,211,153,.3);color:var(--green)}
+
+/* ── Responsive ── */
+@media(max-width:900px){
+  #sidebar{position:fixed;left:-260px;top:0;height:100%;box-shadow:4px 0 24px rgba(0,0,0,.5)}
+  #sidebar.open{left:0}
+  .score-layout{grid-template-columns:1fr}
+  .landing-features{grid-template-columns:repeat(2,1fr)}
+  .stat-strip{grid-template-columns:repeat(3,1fr)}
+  .impact-heroes,.recs-heroes{grid-template-columns:repeat(2,1fr)}
+  .chat-layout{grid-template-columns:1fr}
+  .chat-side{display:none}
+}
+@media(max-width:600px){
+  .landing-features{grid-template-columns:1fr}
+  .stat-strip{grid-template-columns:repeat(2,1fr)}
+  .impact-heroes,.recs-heroes{grid-template-columns:1fr}
+  .tab-content{padding:16px}
+  .dash-header{padding:14px 16px}
+  .stat-strip{padding:10px 16px}
+  .tabs-nav{padding:0 8px}
+}
+
+/* ── Mobile menu btn ── */
+.mobile-menu-btn{display:none;background:none;border:none;font-size:20px;color:var(--text);cursor:pointer;padding:4px}
+@media(max-width:900px){.mobile-menu-btn{display:block}}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div id="app">
+  <!-- SIDEBAR -->
+  <aside id="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-row">
+        <span class="logo-icon">🛡️</span>
+        <div>
+          <div class="logo-text">DataGuard AI</div>
+          <div class="logo-sub">Data Reliability Platform</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">Upload Dataset</div>
+    <div class="upload-area" id="uploadArea">
+      <input type="file" id="fileInput" accept=".csv,.xlsx,.xls">
+      <div class="upload-icon">📂</div>
+      <div class="upload-title">Drop CSV or Excel here</div>
+      <div class="upload-sub">or click to browse</div>
+    </div>
+
+    <div class="sidebar-section">Sample Datasets</div>
+    <div class="sample-grid" id="sampleGrid">
+      <div class="loading-text" style="grid-column:1/-1;padding:8px;font-size:11px;color:var(--muted)">Loading…</div>
+    </div>
+
+    <div class="sidebar-section">AI Analyst</div>
+    <div id="aiStatus" class="sidebar-ai-status status-offline">
+      <div><span class="status-dot dot-yellow"></span><span class="status-label" style="color:var(--yellow)">Checking…</span></div>
+      <div class="status-model">Connecting to Ollama</div>
+    </div>
+
+    <div style="flex:1"></div>
+    <div style="padding:14px;font-size:10px;color:var(--muted);border-top:1px solid var(--border);line-height:1.7">
+      <div style="font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">How it works</div>
+      <div>① Upload any CSV / Excel file</div>
+      <div>② AI profiles 6 quality dimensions</div>
+      <div>③ Root-cause investigation</div>
+      <div>④ Business impact quantified</div>
+      <div>⑤ Ask the AI analyst anything</div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main id="main">
+
+    <!-- LANDING PAGE -->
+    <section id="landing">
+      <div class="landing-badge">✦ &nbsp;AI-POWERED DATA RELIABILITY</div>
+      <h1 class="landing-h1">Know if your data<br><span class="grad-text">can be trusted</span></h1>
+      <p class="landing-sub">Upload any CSV or Excel file. DataGuard AI profiles it across six quality dimensions, identifies root causes, quantifies business impact, and delivers an actionable remediation plan — in seconds.</p>
+      <div class="landing-features">
+        <div class="feature-card"><div class="feature-icon" style="color:var(--blue)">◈</div><div class="feature-title">Deep Profiling</div><div class="feature-desc">7 quality dimensions analysed per column — completeness, validity, consistency, uniqueness, schema, freshness.</div></div>
+        <div class="feature-card"><div class="feature-icon" style="color:var(--purple)">⬡</div><div class="feature-title">AI Root-Cause</div><div class="feature-desc">Detects ingestion windows, source clusters, and correlated failures — not just "outliers exist".</div></div>
+        <div class="feature-card"><div class="feature-icon" style="color:var(--pink)">◈</div><div class="feature-title">Business Impact</div><div class="feature-desc">Monetary exposure estimated against your actual value columns. Real numbers, not vague risk labels.</div></div>
+        <div class="feature-card"><div class="feature-icon" style="color:var(--green)">✓</div><div class="feature-title">AI Analyst Chat</div><div class="feature-desc">Ask anything about your data in plain English. Powered by a locally-trained DataGuard AI model.</div></div>
+      </div>
+      <div class="landing-cta">← Choose a sample dataset or upload your own file to get started</div>
+    </section>
+
+    <!-- DASHBOARD -->
+    <section id="dashboard">
+      <div class="dash-header">
+        <div>
+          <div class="dash-title-row">
+            <button class="mobile-menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+            <span style="font-size:18px">🛡️</span>
+            <span class="dash-title">DataGuard AI</span>
+            <span class="dash-badge">DATA HEALTH REPORT</span>
+          </div>
+          <div class="dash-file" id="dashFile">—</div>
+        </div>
+        <div class="dash-score-pill">
+          <div>
+            <div style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:2px">AI Readiness</div>
+            <div class="score-big" id="scoreNum">—</div>
+          </div>
+          <div class="score-grade" id="scoreGrade">—</div>
+          <div class="score-verdict" id="scoreVerdict">—</div>
+        </div>
+      </div>
+
+      <div class="stat-strip" id="statStrip"></div>
+
+      <nav class="tabs-nav">
+        <button class="tab-btn active" data-tab="score">📊 Score</button>
+        <button class="tab-btn" data-tab="columns">🔬 Columns</button>
+        <button class="tab-btn" data-tab="issues">🔎 Issues</button>
+        <button class="tab-btn" data-tab="impact">💰 Impact</button>
+        <button class="tab-btn" data-tab="recs">✅ Remediation</button>
+        <button class="tab-btn" data-tab="chat">🤖 AI Analyst</button>
+        <button class="tab-btn" data-tab="raw">📋 Raw Data</button>
+      </nav>
+
+      <div id="tab-score"   class="tab-content active"></div>
+      <div id="tab-columns" class="tab-content"></div>
+      <div id="tab-issues"  class="tab-content"></div>
+      <div id="tab-impact"  class="tab-content"></div>
+      <div id="tab-recs"    class="tab-content"></div>
+      <div id="tab-chat"    class="tab-content"></div>
+      <div id="tab-raw"     class="tab-content"></div>
+    </section>
+
+  </main>
+</div>
+
+<!-- LOADING OVERLAY -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-box">
+    <div class="loading-spinner"></div>
+    <div class="loading-text" id="loadingText">Profiling dataset…</div>
+    <div class="loading-sub" id="loadingSub">Running 6 quality dimensions</div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════════════════
+const state = {
+  analysis: null,
+  previewData: null,      // { columns, rows, total_rows }
+  uploadedFile: null,     // File object for uploaded files
+  isSample: false,        // true when loaded via loadSample()
+  chatHistory: [],
+  chatStreaming: false,
+  effortFilter: new Set(['Low','Medium','High']),
+  impactFilter: new Set(['High','Medium','Low']),
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// UTILITIES
+// ═══════════════════════════════════════════════════════════════════════════
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+function scoreColor(s) {
+  if (s >= 85) return '#22d3ee';
+  if (s >= 70) return '#34d399';
+  if (s >= 55) return '#fbbf24';
+  if (s >= 40) return '#fb923c';
+  return '#f87171';
+}
+function scoreBg(s) {
+  if (s >= 85) return 'rgba(34,211,238,0.1)';
+  if (s >= 70) return 'rgba(52,211,153,0.1)';
+  if (s >= 55) return 'rgba(251,191,36,0.1)';
+  if (s >= 40) return 'rgba(251,146,60,0.1)';
+  return 'rgba(248,113,113,0.1)';
+}
+function sevColor(s) {
+  return s==='HIGH'?'#f87171':s==='MEDIUM'?'#fbbf24':'#34d399';
+}
+function sevBg(s) {
+  return s==='HIGH'?'rgba(248,113,113,0.08)':s==='MEDIUM'?'rgba(251,191,36,0.06)':'rgba(52,211,153,0.06)';
+}
+function effortColor(e) {
+  return e==='Low'?'#34d399':e==='Medium'?'#fbbf24':'#f87171';
+}
+function impactColor(i) {
+  return i==='High'?'#f87171':i==='Medium'?'#fbbf24':'#34d399';
+}
+function dimIcon(d) {
+  const m={completeness:'◈',validity:'⬡',consistency:'⟳',uniqueness:'⊕',schema:'⊞',freshness:'◷',general:'⊙'};
+  return m[d]||'•';
+}
+function fmt(n, decimals=1) {
+  if (n == null) return '—';
+  return Number(n).toLocaleString('en-IN', {minimumFractionDigits:decimals,maximumFractionDigits:decimals});
+}
+function fmtMoney(n, sym) {
+  if (!n) return 'N/A';
+  if (n >= 1e7) return sym + fmt(n/1e7,1) + ' Cr';
+  if (n >= 1e5) return sym + fmt(n/1e5,1) + ' L';
+  return sym + fmt(n,0);
+}
+
+function showToast(msg, type='') {
+  const t = $('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(() => t.className = 'toast', 3000);
+}
+
+function showLoading(text='Profiling dataset…', sub='Running 6 quality dimensions') {
+  $('loadingText').textContent = text;
+  $('loadingSub').textContent = sub;
+  $('loadingOverlay').style.display = 'flex';
+}
+function hideLoading() {
+  $('loadingOverlay').style.display = 'none';
+}
+
+function showDashboard() {
+  $('landing').style.display = 'none';
+  $('dashboard').style.display = 'flex';
+}
+function showLanding() {
+  $('landing').style.display = 'flex';
+  $('dashboard').style.display = 'none';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// GAUGE SVG
+// ═══════════════════════════════════════════════════════════════════════════
+function gaugesvg(score, size=180) {
+  const cx=size/2, cy=size/2, r=size*0.36, stroke=size*0.07;
+  const start=225, sweep=270;
+  const color = scoreColor(score);
+  const bg = scoreBg(score);
+  const endAngle = start + sweep*(score/100);
+  function pt(deg){ const a=deg*Math.PI/180; return [cx+r*Math.cos(a), cy+r*Math.sin(a)]; }
+  const [sx,sy]=pt(start), [ex,ey]=pt(endAngle), [bx,by]=pt(start+sweep);
+  const lfg = sweep*score/100 > 180 ? 1 : 0;
+  const grade = score>=85?'A':score>=70?'B':score>=55?'C':score>=40?'D':'F';
+  const fgPath = score > 0
+    ? `<path d="M${sx.toFixed(1)},${sy.toFixed(1)} A${r.toFixed(1)},${r.toFixed(1)} 0 ${lfg} 1 ${ex.toFixed(1)},${ey.toFixed(1)}" fill="none" stroke="${color}" stroke-width="${stroke.toFixed(1)}" stroke-linecap="round" filter="url(#glow)"/>`
+    : '';
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+    <defs>
+      <filter id="glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    </defs>
+    <circle cx="${cx}" cy="${cy}" r="${(r+stroke/2+4).toFixed(1)}" fill="${bg}" opacity="0.7"/>
+    <path d="M${sx.toFixed(1)},${sy.toFixed(1)} A${r.toFixed(1)},${r.toFixed(1)} 0 1 1 ${bx.toFixed(1)},${by.toFixed(1)}" fill="none" stroke="#1f2937" stroke-width="${stroke.toFixed(1)}" stroke-linecap="round"/>
+    ${fgPath}
+    <text x="${cx}" y="${(cy+2).toFixed(1)}" text-anchor="middle" font-family="Inter,sans-serif" font-size="${(size*0.2).toFixed(0)}" font-weight="900" fill="${color}">${score.toFixed(0)}</text>
+    <text x="${cx}" y="${(cy+size*0.15).toFixed(1)}" text-anchor="middle" font-family="Inter,sans-serif" font-size="${(size*0.09).toFixed(0)}" font-weight="600" fill="#64748b">Grade ${grade}</text>
+  </svg>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// STATUS CHECK
+// ═══════════════════════════════════════════════════════════════════════════
+async function checkStatus() {
+  try {
+    const r = await fetch('/api/status');
+    const s = await r.json();
+    const el = $('aiStatus');
+    if (s.available) {
+      const custom = s.is_custom;
+      el.className = 'sidebar-ai-status status-online';
+      el.innerHTML = `<div><span class="status-dot dot-green"></span><span class="status-label" style="color:var(--green)">${custom?'✦ CUSTOM MODEL':'● ONLINE'}</span></div><div class="status-model">${esc(s.model||'')}</div>`;
+    } else {
+      el.className = 'sidebar-ai-status status-offline';
+      el.innerHTML = `<div><span class="status-dot dot-yellow"></span><span class="status-label" style="color:var(--yellow)">⚡ OFFLINE</span></div><div class="status-model">${esc(s.reason||'')}</div>`;
+    }
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// LOAD SAMPLES
+// ═══════════════════════════════════════════════════════════════════════════
+async function loadSamples() {
+  try {
+    const r = await fetch('/api/samples');
+    const d = await r.json();
+    const grid = $('sampleGrid');
+    grid.innerHTML = d.samples.map(s => `
+      <button class="sample-btn" onclick="loadSample('${esc(s.filename)}')">
+        <div class="sample-btn-icon">${s.icon}</div>
+        <span class="sample-btn-label">${esc(s.label)}</span>
+        <div class="sample-btn-desc">${esc(s.desc)}</div>
+      </button>`).join('');
+  } catch(e) {
+    $('sampleGrid').innerHTML = '<div style="color:var(--muted);font-size:11px;padding:8px;grid-column:1/-1">Could not load samples</div>';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// LOAD SAMPLE
+// ═══════════════════════════════════════════════════════════════════════════
+async function loadSample(filename) {
+  showLoading('Loading sample dataset…', filename);
+  try {
+    const [analysisRes, previewRes] = await Promise.all([
+      fetch(`/api/analyse/sample/${encodeURIComponent(filename)}`),
+      fetch(`/api/preview/sample/${encodeURIComponent(filename)}`),
+    ]);
+    if (!analysisRes.ok) throw new Error(await analysisRes.text());
+    const data = await analysisRes.json();
+    const preview = previewRes.ok ? await previewRes.json() : null;
+    state.analysis = data;
+    state.previewData = preview;
+    state.isSample = true;
+    state.uploadedFile = null;
+    state.chatHistory = [];
+    renderDashboard(data);
+    showDashboard();
+    showToast('Dataset loaded: ' + filename, 'success');
+  } catch(e) {
+    showToast('Error: ' + e.message, 'error');
+  } finally {
+    hideLoading();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// UPLOAD FILE
+// ═══════════════════════════════════════════════════════════════════════════
+async function uploadFile(file) {
+  showLoading('Profiling your dataset…', 'Running AI quality analysis');
+  const fd1 = new FormData(); fd1.append('file', file);
+  const fd2 = new FormData(); fd2.append('file', file);
+  try {
+    const [analysisRes, previewRes] = await Promise.all([
+      fetch('/api/analyse', {method:'POST', body:fd1}),
+      fetch('/api/preview', {method:'POST', body:fd2}),
+    ]);
+    if (!analysisRes.ok) throw new Error(await analysisRes.text());
+    const data = await analysisRes.json();
+    const preview = previewRes.ok ? await previewRes.json() : null;
+    state.analysis = data;
+    state.previewData = preview;
+    state.isSample = false;
+    state.uploadedFile = file;
+    state.chatHistory = [];
+    renderDashboard(data);
+    showDashboard();
+    showToast('Analysis complete: ' + file.name, 'success');
+  } catch(e) {
+    showToast('Error: ' + e.message, 'error');
+  } finally {
+    hideLoading();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// FILE INPUT
+// ═══════════════════════════════════════════════════════════════════════════
+$('fileInput').addEventListener('change', e => {
+  if (e.target.files[0]) uploadFile(e.target.files[0]);
+});
+const ua = $('uploadArea');
+ua.addEventListener('dragover', e => { e.preventDefault(); ua.classList.add('drag'); });
+ua.addEventListener('dragleave', () => ua.classList.remove('drag'));
+ua.addEventListener('drop', e => {
+  e.preventDefault(); ua.classList.remove('drag');
+  if (e.dataTransfer.files[0]) uploadFile(e.dataTransfer.files[0]);
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════════════════════════════════
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    $('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// RENDER DASHBOARD
+// ═══════════════════════════════════════════════════════════════════════════
+function renderDashboard(d) {
+  const s = d.score, m = d.metrics;
+  const color = scoreColor(s.ai_readiness);
+
+  // Header
+  $('dashFile').textContent = `📄 ${d.dataset_name}  ·  ${d.total_rows.toLocaleString()} rows  ·  ${d.total_cols} columns`;
+  $('scoreNum').textContent = s.ai_readiness.toFixed(0);
+  $('scoreNum').style.color = color;
+  $('scoreGrade').textContent = s.grade;
+  $('scoreGrade').style.background = scoreBg(s.ai_readiness);
+  $('scoreGrade').style.color = color;
+  $('scoreVerdict').textContent = s.verdict;
+
+  // Stat strip
+  const strips = [
+    {label:'Completeness', val:s.completeness, unit:'', isScore:true},
+    {label:'Validity',     val:s.validity,     unit:'', isScore:true},
+    {label:'Uniqueness',   val:s.uniqueness,   unit:'', isScore:true},
+    {label:'Consistency',  val:s.consistency,  unit:'', isScore:true},
+    {label:'Missing',      val:m.missing_cell_pct, unit:'%', isScore:false, invert:true},
+    {label:'Duplicates',   val:m.duplicate_pct,    unit:'%', isScore:false, invert:true},
+  ];
+  $('statStrip').innerHTML = strips.map(({label,val,unit,isScore,invert}) => {
+    const c = isScore ? scoreColor(val) : (val > 10 ? '#f87171' : val > 3 ? '#fbbf24' : '#34d399');
+    const pct = isScore ? val : Math.min(100, val * 5);
+    return `<div class="stat-tile">
+      <div class="stat-label">${label}</div>
+      <div class="stat-value" style="color:${c}">${val.toFixed(isScore?0:1)}<span style="font-size:11px;color:var(--muted)">${unit||'%'}</span></div>
+      <div class="mini-bar"><div class="mini-bar-fill" style="width:${pct}%;background:${c}"></div></div>
+    </div>`;
+  }).join('');
+
+  renderScore(d);
+  renderColumns(d);
+  renderIssues(d);
+  renderImpact(d);
+  renderRecs(d);
+  renderChat(d);
+  renderRaw(d);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// RENDER: SCORE TAB
+// ═══════════════════════════════════════════════════════════════════════════
+function renderScore(d) {
+  const s = d.score, m = d.metrics;
+  const color = scoreColor(s.ai_readiness);
+  const freshStr = m.freshness_days != null ? `${m.freshness_flag} · ${Math.round(m.freshness_days)}d` : m.freshness_flag;
+
+  const dims = [
+    {name:'Completeness', val:s.completeness, w:0.30, note:'100 − % missing cells'},
+    {name:'Validity',     val:s.validity,     w:0.20, note:'100 − % outlier rows (IQR×3)'},
+    {name:'Uniqueness',   val:s.uniqueness,   w:0.15, note:'100 − % duplicate rows'},
+    {name:'Consistency',  val:s.consistency,  w:0.15, note:'Format anomaly penalty'},
+    {name:'Freshness',    val:s.freshness,    w:0.10, note:`Data age: ${freshStr}`},
+    {name:'Schema',       val:s.schema,       w:0.10, note:`${m.schema_issues.length} issue(s)`},
+  ];
+
+  let schemaHtml = '';
+  if (m.schema_issues.length) {
+    schemaHtml = `<div style="margin-top:16px"><div class="section-title" style="margin-bottom:10px">❌ Schema Issues</div>${
+      m.schema_issues.map(i=>`<div style="background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2);border-radius:8px;padding:9px 12px;margin-bottom:6px;color:#fca5a5;font-size:12px">⚠ ${esc(i)}</div>`).join('')
+    }</div>`;
+  }
+  let freshHtml = '';
+  if (m.freshness_flag === 'STALE') {
+    freshHtml = `<div style="background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.2);border-radius:8px;padding:9px 12px;margin-top:10px;color:#fde68a;font-size:12px">⏰ Data is <strong>${Math.round(m.freshness_days||0)} days</strong> old — freshness SLA may be violated.</div>`;
+  }
+
+  $('tab-score').innerHTML = `
+    <div class="score-layout">
+      <div class="gauge-card">
+        <div class="gauge-label">AI Readiness Score</div>
+        ${gaugesvg(s.ai_readiness, 180)}
+        <div class="gauge-verdict" style="color:${color}">${esc(s.verdict)}</div>
+        <div class="gauge-stats">
+          <div class="kv"><span class="kv-key">Missing cells</span><span class="kv-val">${m.missing_cell_pct.toFixed(2)}%</span></div>
+          <div class="kv"><span class="kv-key">Duplicate rows</span><span class="kv-val">${m.duplicate_pct.toFixed(2)}%</span></div>
+          <div class="kv"><span class="kv-key">Outlier rows</span><span class="kv-val">${m.total_outlier_pct.toFixed(2)}%</span></div>
+          <div class="kv"><span class="kv-key">Schema issues</span><span class="kv-val">${m.schema_issues.length}</span></div>
+          <div class="kv"><span class="kv-key">Freshness</span><span class="kv-val">${esc(freshStr)}</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="section-title">Dimension Breakdown</div>
+        <div class="section-sub">Weighted contributions to the AI Readiness score</div>
+        <div class="dims-grid">
+          ${dims.map(({name,val,w,note}) => {
+            const c = scoreColor(val);
+            return `<div class="dim-row">
+              <div class="dim-row-top">
+                <div><span class="dim-name">${name}</span><span class="dim-weight">weight ${(w*100).toFixed(0)}%</span></div>
+                <div style="display:flex;align-items:center;gap:10px">
+                  <span class="dim-note">${esc(note)}</span>
+                  <span class="dim-score" style="color:${c}">${val.toFixed(0)}</span>
+                </div>
+              </div>
+              <div class="progress-bar"><div class="progress-fill" style="width:${val}%;background:${c}"></div></div>
+            </div>`;
+          }).join('')}
+        </div>
+        ${schemaHtml}${freshHtml}
+      </div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// RENDER: COLUMNS TAB
+// ═══════════════════════════════════════════════════════════════════════════
+function renderColumns(d) {
+  const cols = d.columns;
+  const colors = ['#3b82f6','#8b5cf6','#a78bfa','#c084fc','#e879f9'];
+
+  const tableRows = cols.map(cp => {
+    const mc = cp.missing_pct>20?'#f87171':cp.missing_pct>5?'#fbbf24':'#34d399';
+    const oc = cp.outlier_pct>10?'#f87171':cp.outlier_pct>2?'#fbbf24':'#34d399';
+    let status='✓', sc='#34d399';
+    if (cp.missing_pct>20||cp.outlier_pct>10){status='✗';sc='#f87171';}
+    else if (cp.missing_pct>5||cp.outlier_pct>2||cp.format_issues>0){status='!';sc='#fbbf24';}
+    const outCell = cp.outlier_count
+      ? `<span style="color:${oc};font-weight:600">${cp.outlier_count}</span> <span style="color:var(--muted)">(${cp.outlier_pct}%)</span>`
+      : '<span style="color:var(--border2)">—</span>';
+    const fmtCell = cp.format_issues
+      ? `<span style="color:#fbbf24">${cp.format_issues}</span>`
+      : '<span style="color:var(--border2)">—</span>';
+    const meanCell = cp.mean != null ? `<span style="color:var(--muted)">${Number(cp.mean).toLocaleString('en-IN',{maximumFractionDigits:1})}</span>` : '<span style="color:var(--border2)">—</span>';
+    return `<tr>
+      <td><span class="status-icon" style="color:${sc}">${status}</span></td>
+      <td style="color:var(--text);font-weight:500">${esc(cp.name)}</td>
+      <td><span class="type-badge">${esc(cp.dtype)}</span></td>
+      <td><span style="color:${mc};font-weight:600">${cp.missing_pct.toFixed(1)}%</span>
+          <div class="inline-bar"><div class="inline-bar-fill" style="width:${Math.min(100,cp.missing_pct*4)}%;background:${mc}"></div></div></td>
+      <td style="color:var(--muted)">${cp.unique_count.toLocaleString()}</td>
+      <td>${outCell}</td>
+      <td>${fmtCell}</td>
+      <td>${meanCell}</td>
+    </tr>`;
+  }).join('');
+
+  const numCols = cols.filter(c=>c.mean!=null);
+  const numCards = numCols.map(cp=>{
+    const rng = (cp.max||0)-(cp.min||0);
+    const nq1 = rng ? Math.max(0,Math.min(100,((cp.q1||0)-(cp.min||0))/rng*100)) : 25;
+    const nq3 = rng ? Math.max(0,Math.min(100,((cp.q3||0)-(cp.min||0))/rng*100)) : 75;
+    const nmed= rng ? Math.max(0,Math.min(100,((cp.median||0)-(cp.min||0))/rng*100)) : 50;
+    const bw  = Math.max(0,nq3-nq1);
+    const oc  = cp.outlier_pct>5?'#f87171':cp.outlier_pct>1?'#fbbf24':'#34d399';
+    return `<div class="num-card">
+      <div class="num-name">${esc(cp.name)}</div>
+      <div class="num-stats">
+        ${[['min',cp.min],['mean',cp.mean],['median',cp.median],['max',cp.max]].map(([k,v])=>
+          `<div class="num-stat"><div class="num-stat-val">${v!=null?Number(v).toLocaleString('en-IN',{maximumFractionDigits:1}):'—'}</div><div class="num-stat-key">${k}</div></div>`
+        ).join('')}
+      </div>
+      <div class="range-bar-wrap">
+        <div class="range-q" style="left:${nq1.toFixed(1)}%;width:${bw.toFixed(1)}%"></div>
+        <div class="range-med" style="left:${nmed.toFixed(1)}%"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:3px;font-size:10px;color:var(--border2)">
+        <span>${cp.min!=null?Number(cp.min).toLocaleString('en-IN',{maximumFractionDigits:0}):''}</span>
+        <span style="color:var(--blue)">Q1–Q3</span>
+        <span>${cp.max!=null?Number(cp.max).toLocaleString('en-IN',{maximumFractionDigits:0}):''}</span>
+      </div>
+      ${cp.outlier_count?`<div style="color:${oc};font-size:11px;margin-top:6px">⚠ ${cp.outlier_count} outliers (${cp.outlier_pct}%)</div>`:''}
+    </div>`;
+  }).join('');
+
+  const catCols = cols.filter(c=>c.top_values&&Object.keys(c.top_values).length>0);
+  const catCards = catCols.slice(0,9).map((cp,ci)=>{
+    const vals = Object.entries(cp.top_values).slice(0,5);
+    const maxV = Math.max(...vals.map(v=>v[1]));
+    const clr = colors[ci%colors.length];
+    return `<div class="cat-card">
+      <div class="cat-name">${esc(cp.name)}</div>
+      ${vals.map(([k,v])=>`<div class="cat-bar-row">
+        <div class="cat-bar-label"><span style="color:var(--dim)">${esc(String(k).slice(0,20))}</span><span style="color:${clr};font-weight:600">${v.toLocaleString()}</span></div>
+        <div class="cat-bar-track"><div class="cat-bar-fill" style="width:${(v/maxV*100).toFixed(1)}%;background:${clr}"></div></div>
+      </div>`).join('')}
+      <div style="color:var(--border2);font-size:10px;margin-top:6px">${cp.unique_count.toLocaleString()} unique · ${cp.missing_pct.toFixed(1)}% missing</div>
+    </div>`;
+  }).join('');
+
+  $('tab-columns').innerHTML = `
+    <div class="section-title">Column Quality Matrix</div>
+    <div class="section-sub">Every column profiled across quality dimensions</div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:24px">
+      <div style="overflow-x:auto">
+        <table class="col-table">
+          <thead><tr><th>St</th><th>Column</th><th>Type</th><th>Missing</th><th>Unique</th><th>Outliers</th><th>Format</th><th>Mean</th></tr></thead>
+          <tbody>${tableRows}</tbody>
+        </table>
+      </div>
+    </div>
+    ${numCols.length?`<div class="section-title">Numeric Distributions</div><div class="num-dist-grid">${numCards}</div>`:''}
+    ${catCols.length?`<div class="section-title" style="margin-top:24px">Categorical Distributions</div><div class="cat-grid">${catCards}</div>`:''}`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// RENDER: ISSUES TAB
+// ═══════════════════════════════════════════════════════════════════════════
+function renderIssues(d) {
+  const rc = d.root_cause;
+  const issueCards = rc.issues.map(i => {
+    const sc = sevColor(i.severity), bg = sevBg(i.severity);
+    const causes = (i.possible_root_causes||[]).slice(0,3).map(c=>`<li>${esc(c)}</li>`).join('');
+    let evHtml = '';
+    const ev = i.evidence||{};
+    if (ev.date_clusters && Object.keys(ev.date_clusters).length) {
+      evHtml += Object.entries(ev.date_clusters).map(([dc,info])=>
+        `<div>📅 <strong>${esc(dc)}</strong>: outliers cluster between <strong>${esc(info.from)}</strong> → <strong>${esc(info.to)}</strong> (${info.window_days} days, ${info.outlier_count_in_window} records)</div>`
+      ).join('');
+    }
+    if (ev.category_clusters && Object.keys(ev.category_clusters).length) {
+      evHtml += Object.entries(ev.category_clusters).map(([cat,info])=>
+        `<div>📦 <code style="color:var(--blue)">${esc(cat)}</code> = <strong style="color:var(--yellow)">'${esc(info.top_value)}'</strong>: ${info.concentration_pct}% of outliers (${info.outlier_count}/${info.base_count} records)</div>`
+      ).join('');
+    }
+
+    return `<div class="issue-card" style="background:${bg};border-left-color:${sc};border:1px solid ${sc}22;border-left:3px solid ${sc}">
+      <div class="issue-card-head">
+        <div style="flex:1">
+          <div class="issue-title-row">
+            <span style="font-size:14px">${dimIcon(i.dimension)}</span>
+            <span class="issue-title">${esc(i.title)}</span>
+            <span class="sev-pill" style="background:${bg};color:${sc};border:1px solid ${sc}33">● ${i.severity}</span>
+          </div>
+          <div class="issue-desc">${esc(i.description)}</div>
+          <ul class="issue-causes">${causes}</ul>
+          ${evHtml?`<div class="evidence-box">${evHtml}</div>`:''}
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div class="issue-pct" style="color:${sc}">${i.affected_pct.toFixed(1)}%</div>
+          <div class="issue-pct-label">affected</div>
+          <div style="color:var(--muted);font-size:10px;margin-top:4px">${i.affected_rows.toLocaleString()} rows</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  $('tab-issues').innerHTML = `
+    <div class="issue-summary-bar">
+      <div class="sev-count"><div class="sev-num" style="color:#f87171">${rc.high_severity}</div><div class="sev-label">High</div></div>
+      <div class="sev-count"><div class="sev-num" style="color:#fbbf24">${rc.medium_severity}</div><div class="sev-label">Medium</div></div>
+      <div class="sev-count"><div class="sev-num" style="color:#34d399">${rc.low_severity}</div><div class="sev-label">Low</div></div>
+      <div class="summary-text"><strong style="color:var(--text)">AI Investigation: </strong>${esc(rc.summary)}</div>
+    </div>
+    ${issueCards || '<div style="text-align:center;padding:40px;color:#34d399;font-size:14px">✓ No significant quality issues detected.</div>'}`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// RENDER: IMPACT TAB
+// ═══════════════════════════════════════════════════════════════════════════
+function renderImpact(d) {
+  const imp = d.impact;
+  const sym = imp.currency_symbol||'$';
+  const monStr = fmtMoney(imp.total_monetary_exposure, sym);
+  const highRisk = imp.estimates.filter(e=>e.severity==='HIGH').length;
+
+  const cards = imp.estimates.map(e => {
+    const sc = sevColor(e.severity), bg = sevBg(e.severity);
+    const risks = (e.downstream_risks||[]).map(r=>`<div class="risk-item"><span class="risk-arrow">▸</span><span>${esc(r)}</span></div>`).join('');
+    const monHtml = e.monetary_impact
+      ? `<div class="impact-monetary" style="color:${sc}">💰 ${sym}${Number(e.monetary_impact).toLocaleString('en-IN',{maximumFractionDigits:0})} <span style="color:var(--muted);font-weight:400">— ${esc(e.monetary_note)}</span></div>` : '';
+    return `<div class="impact-card" style="background:${bg};border:1px solid ${sc}22">
+      <div class="impact-card-head">
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <span style="font-size:13px;font-weight:700;color:var(--text)">${esc(e.issue_title)}</span>
+            <span class="sev-pill" style="background:${bg};color:${sc};border:1px solid ${sc}33">● ${e.severity}</span>
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:6px">${esc(e.record_impact_description)}</div>
+          ${monHtml}
+          <div class="impact-risks">${risks}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;min-width:80px">
+          <div style="font-size:22px;font-weight:900;color:${sc}">${e.affected_rows.toLocaleString()}</div>
+          <div style="font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">records</div>
+          <div style="font-size:13px;font-weight:700;color:${sc};margin-top:4px">${e.affected_pct.toFixed(1)}%</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  $('tab-impact').innerHTML = `
+    <div class="impact-heroes">
+      <div class="hero-card"><div class="hero-icon">💰</div><div class="hero-label">Monetary Exposure</div><div class="hero-value" style="color:${imp.total_monetary_exposure?'#f87171':'#34d399'}">${monStr}</div><div class="hero-sub">estimated across all issues</div></div>
+      <div class="hero-card"><div class="hero-icon">📊</div><div class="hero-label">Affected Records</div><div class="hero-value" style="color:#fbbf24">${imp.total_affected_rows.toLocaleString()}</div><div class="hero-sub">${imp.unique_affected_pct.toFixed(1)}% of dataset</div></div>
+      <div class="hero-card"><div class="hero-icon">⚠️</div><div class="hero-label">High-Risk Issues</div><div class="hero-value" style="color:${highRisk?'#f87171':'#34d399'}">${highRisk}</div><div class="hero-sub">require immediate attention</div></div>
+    </div>
+    <div class="exec-summary"><strong style="color:var(--text)">Executive Summary: </strong>${esc(imp.executive_summary)}</div>
+    ${cards}`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// RENDER: RECS TAB
+// ═══════════════════════════════════════════════════════════════════════════
+function renderRecs(d) {
+  const rr = d.recommendations;
+  const quickWins = rr.items.filter(r=>r.effort==='Low'&&r.impact==='High').length;
+  window._recsData = rr.items;
+
+  $('tab-recs').innerHTML = `
+    <div class="recs-heroes">
+      <div class="hero-card"><div class="hero-icon">✅</div><div class="hero-label">Total Actions</div><div class="hero-value" style="color:var(--blue)">${rr.items.length}</div><div class="hero-sub">prioritised by impact × effort</div></div>
+      <div class="hero-card"><div class="hero-icon">⚡</div><div class="hero-label">Quick Wins</div><div class="hero-value" style="color:#34d399">${quickWins}</div><div class="hero-sub">low effort · high impact</div></div>
+      <div class="hero-card"><div class="hero-icon">📈</div><div class="hero-label">Score Lift</div><div class="hero-value" style="color:#a78bfa">+${rr.estimated_score_lift.toFixed(0)}</div><div class="hero-sub">pts if HIGH issues fixed</div></div>
+    </div>
+    <div class="plan-box"><strong style="color:var(--text)">Remediation Plan: </strong>${esc(rr.remediation_plan)}</div>
+    <div class="rec-filters" id="recFilters">
+      <span style="font-size:11px;color:var(--muted);padding:4px 0">Filter by effort:</span>
+      ${['Low','Medium','High'].map(e=>`<button class="filter-btn active" data-effort="${e}" onclick="toggleEffort('${e}',this)">${e}</button>`).join('')}
+      <span style="font-size:11px;color:var(--muted);padding:4px 8px">Impact:</span>
+      ${['High','Medium','Low'].map(i=>`<button class="filter-btn active" data-impact="${i}" onclick="toggleImpact('${i}',this)">${i}</button>`).join('')}
+    </div>
+    <div id="recList"></div>`;
+
+  renderRecList();
+}
+
+function toggleEffort(e, btn) {
+  if (state.effortFilter.has(e)) state.effortFilter.delete(e);
+  else state.effortFilter.add(e);
+  btn.classList.toggle('active');
+  renderRecList();
+}
+function toggleImpact(i, btn) {
+  if (state.impactFilter.has(i)) state.impactFilter.delete(i);
+  else state.impactFilter.add(i);
+  btn.classList.toggle('active');
+  renderRecList();
+}
+function renderRecList() {
+  const items = (window._recsData||[]).filter(r=>state.effortFilter.has(r.effort)&&state.impactFilter.has(r.impact));
+  const list = $('recList');
+  if (!list) return;
+  if (!items.length) { list.innerHTML='<div style="color:var(--muted);text-align:center;padding:24px">No recommendations match the selected filters.</div>'; return; }
+  list.innerHTML = items.map(r => {
+    const ec = effortColor(r.effort), ic = impactColor(r.impact);
+    const numBg = r.impact==='High'?'rgba(248,113,113,0.15)':r.impact==='Medium'?'rgba(251,191,36,0.12)':'rgba(52,211,153,0.10)';
+    return `<div class="rec-card">
+      <div class="rec-num" style="background:${numBg};color:${ic}">#${r.priority}</div>
+      <div class="rec-body">
+        <div class="rec-action">${esc(r.action)}</div>
+        <div class="rec-detail">${esc(r.detail.slice(0,200))}${r.detail.length>200?'…':''}</div>
+        <div class="rec-tags">
+          <span class="tag" style="color:${ec};border-color:${ec}33;background:${ec}11">Effort: ${r.effort}</span>
+          <span class="tag" style="color:${ic};border-color:${ic}33;background:${ic}11">Impact: ${r.impact}</span>
+          <span class="tag" style="color:var(--blue);border-color:var(--blue-border);background:var(--blue-dim)">${esc(r.dimension)}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// RENDER: CHAT TAB
+// ═══════════════════════════════════════════════════════════════════════════
+function renderChat(d) {
+  const suggestions = [
+    'Is this data safe for machine learning?',
+    'What is causing the missing values?',
+    'Which issues have the highest business impact?',
+    'What should I fix first?',
+    'Explain the outliers in simple terms',
+    'How would these issues affect a revenue dashboard?',
+  ];
+
+  $('tab-chat').innerHTML = `
+    <div class="chat-layout">
+      <div class="chat-main">
+        <div class="chat-header">
+          <span class="chat-header-icon">🤖</span>
+          <div>
+            <div class="chat-header-title">DataGuard AI Analyst</div>
+            <div class="chat-header-sub">Powered by dataguard-ai · runs locally · no data leaves your machine</div>
+          </div>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+          <div class="msg">
+            <div class="msg-avatar avatar-ai">🤖</div>
+            <div class="msg-bubble bubble-ai">I've analysed <strong>${esc(d.dataset_name)}</strong> — AI Readiness score is <strong style="color:${scoreColor(d.score.ai_readiness)}">${d.score.ai_readiness}/100 (Grade ${d.score.grade})</strong>. ${d.root_cause.total_issues} quality issue(s) detected. Ask me anything about the data.</div>
+          </div>
+        </div>
+        <div class="chat-input-row">
+          <input class="chat-input" id="chatInput" placeholder="Ask anything about this dataset…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}">
+          <button class="chat-send-btn" id="chatSendBtn" onclick="sendChat()">Send →</button>
+        </div>
+      </div>
+      <div class="chat-side">
+        <div class="suggestions-card">
+          <div class="suggestions-title">Suggested questions</div>
+          ${suggestions.map(s=>`<button class="suggestion-pill" onclick="useSuggestion('${s.replace(/'/g,"\\'")}')"> ${esc(s)}</button>`).join('')}
+        </div>
+        <div class="narrative-card">
+          <div class="narrative-title-row">
+            <div class="narrative-title">Executive Narrative</div>
+            <button class="narrative-gen-btn" onclick="generateNarrative()">✨ Generate</button>
+          </div>
+          <div id="narrativeContent" class="narrative-text" style="color:var(--muted);font-size:11px">Click Generate to get an AI-written executive summary of the analysis.</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function useSuggestion(text) {
+  $('chatInput').value = text;
+  sendChat();
+}
+
+async function sendChat() {
+  if (state.chatStreaming) return;
+  const input = $('chatInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+
+  appendMsg('user', msg);
+  state.chatHistory.push({role:'user', content:msg});
+
+  const sendBtn = $('chatSendBtn');
+  sendBtn.disabled = true;
+  state.chatStreaming = true;
+
+  // Insert typing indicator with a unique ID per message turn
+  const turnId   = 'turn-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+  const bubbleId = 'bubble-' + turnId;
+  const msgs = $('chatMessages');
+  msgs.insertAdjacentHTML('beforeend', `
+    <div class="msg" id="${turnId}">
+      <div class="msg-avatar avatar-ai">🤖</div>
+      <div class="msg-bubble bubble-ai bubble-typing">
+        <span class="dot-typing"></span><span class="dot-typing"></span><span class="dot-typing"></span>
+      </div>
+    </div>`);
+  msgs.scrollTop = msgs.scrollHeight;
+
+  // TextDecoder in streaming mode preserves incomplete multi-byte sequences
+  // across .read() calls so SSE lines are never split mid-character.
+  const dec = new TextDecoder('utf-8', {fatal: false});
+  let leftover = '';   // buffer for incomplete SSE lines split across chunks
+  let fullResp = '';
+  let bubbleEl = null;
+  let finished = false;
+
+  try {
+    const r = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({message:msg, history:state.chatHistory.slice(-6), analysis:state.analysis})
+    });
+
+    if (!r.ok) throw new Error(await r.text());
+
+    const reader = r.body.getReader();
+
+    while (!finished) {
+      const {done, value} = await reader.read();
+      if (done) break;
+
+      // Prepend any leftover text from the previous chunk before splitting
+      const text = leftover + dec.decode(value, {stream: true});
+      const lines = text.split('\n');
+      // The last element may be an incomplete line — save it for next chunk
+      leftover = lines.pop();
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const payload = line.slice(6).trim();
+        if (payload === '[DONE]') { finished = true; break; }
+        if (!payload) continue;
+        try {
+          const {token} = JSON.parse(payload);
+          if (token == null) continue;
+          fullResp += token;
+
+          // Replace typing dots with the actual bubble on first token
+          if (!bubbleEl) {
+            const turnEl = document.getElementById(turnId);
+            turnEl.innerHTML =
+              `<div class="msg-avatar avatar-ai">🤖</div>` +
+              `<div class="msg-bubble bubble-ai" id="${bubbleId}"></div>`;
+            bubbleEl = document.getElementById(bubbleId);
+          }
+          bubbleEl.textContent = fullResp;
+          msgs.scrollTop = msgs.scrollHeight;
+        } catch(_) {}
+      }
+    }
+
+    // Flush any remaining buffered bytes
+    const tail = leftover + dec.decode();
+    if (tail.startsWith('data: ')) {
+      const payload = tail.slice(6).trim();
+      if (payload && payload !== '[DONE]') {
+        try {
+          const {token} = JSON.parse(payload);
+          if (token && bubbleEl) { fullResp += token; bubbleEl.textContent = fullResp; }
+        } catch(_) {}
+      }
+    }
+
+  } catch(e) {
+    const turnEl = document.getElementById(turnId);
+    if (turnEl) turnEl.querySelector('.msg-bubble').textContent =
+      'The AI analyst is offline. Start Ollama and ensure the dataguard-ai model is ready.';
+    fullResp = 'offline';
+  }
+
+  if (fullResp && fullResp !== 'offline') {
+    state.chatHistory.push({role:'assistant', content:fullResp});
+  }
+  sendBtn.disabled = false;
+  state.chatStreaming = false;
+}
+
+function appendMsg(role, content) {
+  const msgs = $('chatMessages');
+  const isUser = role === 'user';
+  msgs.insertAdjacentHTML('beforeend', `
+    <div class="msg ${isUser?'msg-user':''}">
+      <div class="msg-avatar ${isUser?'avatar-user':'avatar-ai'}">${isUser?'👤':'🤖'}</div>
+      <div class="msg-bubble ${isUser?'bubble-user':'bubble-ai'}">${esc(content)}</div>
+    </div>`);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+async function generateNarrative() {
+  const el = $('narrativeContent');
+  if (!el || !state.analysis) return;
+  el.innerHTML = '<div style="color:var(--muted)">Generating…</div>';
+
+  try {
+    let r;
+    if (state.isSample) {
+      r = await fetch(`/api/narrative/sample/${encodeURIComponent(state.analysis.dataset_name)}`);
+    } else if (state.uploadedFile) {
+      const fd = new FormData();
+      fd.append('file', state.uploadedFile);
+      r = await fetch('/api/narrative', {method:'POST', body:fd});
+    } else {
+      el.innerHTML = '<div style="color:var(--muted)">No dataset loaded.</div>';
+      return;
+    }
+    const data = await r.json();
+    const badge = data.was_ai
+      ? '<span class="ai-badge ai-badge-gen">✦ AI GENERATED</span>'
+      : '<span class="ai-badge ai-badge-fallback">RULE-BASED</span>';
+    el.innerHTML = badge + '<div style="margin-top:6px">' + esc(data.narrative).replace(/\n/g,'<br>') + '</div>';
+  } catch(e) {
+    el.innerHTML = '<div style="color:var(--red)">Error generating narrative.</div>';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// RENDER: RAW DATA TAB
+// ═══════════════════════════════════════════════════════════════════════════
+function renderRaw(d) {
+  const pv = state.previewData;
+  const shown = pv ? Math.min(pv.rows.length, 200) : 0;
+  const tableHtml = pv
+    ? `<div class="raw-table-wrap">
+        <table class="raw-table">
+          <thead><tr>${pv.columns.map(c=>`<th>${esc(c)}</th>`).join('')}</tr></thead>
+          <tbody>${pv.rows.map(row=>`<tr>${row.map(cell=>`<td title="${esc(cell)}">${esc(String(cell).slice(0,40))}${String(cell).length>40?'…':''}</td>`).join('')}</tr>`).join('')}</tbody>
+        </table>
+      </div>`
+    : `<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:32px;text-align:center;color:var(--muted)">
+        <div style="font-size:32px;margin-bottom:12px">📋</div>
+        <div style="font-size:13px;font-weight:600;color:var(--dim)">Preview unavailable</div>
+        <div style="font-size:11px;margin-top:6px">All ${d.total_rows.toLocaleString()} rows were profiled — reload to see the raw data.</div>
+      </div>`;
+
+  // Build a column quality mini-legend above the table
+  const qualityLegend = d.columns.map(cp => {
+    let dot = '🟢', tip = 'No issues';
+    if (cp.missing_pct > 20 || cp.outlier_pct > 10) { dot = '🔴'; tip = `${cp.missing_pct.toFixed(1)}% missing / ${cp.outlier_pct}% outliers`; }
+    else if (cp.missing_pct > 5 || cp.outlier_pct > 2 || cp.format_issues > 0) { dot = '🟡'; tip = `${cp.missing_pct.toFixed(1)}% missing`; }
+    return `<div style="display:flex;align-items:center;gap:5px;background:var(--card);border:1px solid var(--border);border-radius:6px;padding:5px 9px;font-size:10px;white-space:nowrap" title="${esc(tip)}">
+      <span>${dot}</span><span style="color:var(--dim);font-weight:500">${esc(cp.name)}</span><span style="color:var(--muted)">${esc(cp.dtype)}</span>
+    </div>`;
+  }).join('');
+
+  $('tab-raw').innerHTML = `
+    <div class="section-title">Dataset Preview</div>
+    <div class="section-sub">Showing ${shown > 0 ? `first ${shown.toLocaleString()} of ` : ''}${d.total_rows.toLocaleString()} rows · ${d.total_cols} columns</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px">${qualityLegend}</div>
+    ${tableHtml}
+    <div style="margin-top:12px;font-size:10px;color:var(--muted)">🟢 No issues &nbsp;·&nbsp; 🟡 Minor issues &nbsp;·&nbsp; 🔴 Significant issues — based on profiler analysis</div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════════════
+checkStatus();
+loadSamples();
+setInterval(checkStatus, 15000);
+</script>
+</body>
+</html>
