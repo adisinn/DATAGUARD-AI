@@ -65,6 +65,16 @@ ui/app.py            ← Streamlit dashboard (6 tabs)
 - **3.4%** duplicate rows
 - **8%** mixed-type `order_ref` column (integers + strings)
 
+### New: Customer Profiles Dataset
+
+`sample_data/customer_profiles_enriched.csv` — synthetic customer-level aggregates designed to complement the transaction and product datasets:
+
+- **Schema:** `customer_id, email, region, total_spent_inr, num_orders, avg_order_value, first_order_date, last_order_date, favorite_product, return_rate, is_vip`
+- **Purpose:** Supports segmentation, lifetime value analysis, churn and VIP detection, and recommendation system testing without altering source transactions.
+- **Quality cues injected:** some missing `email` values, zero `total_spent_inr` for inactive customers, and a small share of high-spend VIPs to test outlier detection and profiling behavior.
+
+Use this file to test downstream aggregation analyses and to validate how the profiler handles aggregate-level datasets.
+
 ---
 
 ## Project Structure
